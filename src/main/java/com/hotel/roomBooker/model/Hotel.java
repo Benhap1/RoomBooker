@@ -3,6 +3,8 @@ package com.hotel.roomBooker.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Data
 @Table(name = "hotels")
@@ -18,4 +20,7 @@ public class Hotel {
     private double distanceFromCityCenter;
     private int rating;
     private int numberOfRatings;
+
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Room> rooms;
 }
