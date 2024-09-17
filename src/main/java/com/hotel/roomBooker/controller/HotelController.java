@@ -28,12 +28,13 @@ public class HotelController {
         return ResponseEntity.ok(response);
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<HotelResponseDTO> getHotelById(@PathVariable Long id) {
-        return hotelService.getHotelById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        HotelResponseDTO hotelResponse = hotelService.getHotelById(id);
+        return ResponseEntity.ok(hotelResponse);
     }
+
 
     @PostMapping
     public ResponseEntity<HotelResponseDTO> createHotel(@RequestBody HotelRequestDTO hotelRequest) {
