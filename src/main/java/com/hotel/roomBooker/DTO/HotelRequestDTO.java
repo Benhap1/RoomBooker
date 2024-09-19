@@ -9,5 +9,4 @@ public class HotelRequestDTO {
     private String city;
     private String address;
     private double distanceFromCityCenter;
-    // rating и numberOfRatings не включены
 }
