@@ -48,6 +48,10 @@ public class RoomService {
         room.setAvailableFrom(roomRequestDTO.getAvailableFrom());
         room.setAvailableTo(roomRequestDTO.getAvailableTo());
 
+        Hotel hotel = hotelRepository.findById(roomRequestDTO.getHotelId())
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found"));
+        room.setHotel(hotel);
+
         Room updatedRoom = roomRepository.save(room);
         return roomMapper.toDTO(updatedRoom);
     }

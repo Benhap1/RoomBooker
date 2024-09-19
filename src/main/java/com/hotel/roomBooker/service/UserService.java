@@ -28,7 +28,7 @@ public class UserService {
     }
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
-        if (userRepository.existsByUserNameOrEmail(userRequestDTO.getUsername(), userRequestDTO.getEmail())) {
+        if (userRepository.existsByUserNameOrEmail(userRequestDTO.getUserName(), userRequestDTO.getEmail())) {
             throw new UserAlreadyExistsException("User with username and email already exists");
         }
         UserRole userRole = userRoleRepository.findByRoleName(userRequestDTO.getRoleName())
@@ -42,7 +42,7 @@ public class UserService {
     public UserResponseDTO updateUser(Long userId, UserRequestDTO userRequestDTO) {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
-        existingUser.setUserName(userRequestDTO.getUsername());
+        existingUser.setUserName(userRequestDTO.getUserName());
         existingUser.setEmail(userRequestDTO.getEmail());
         existingUser.setPassword(userRequestDTO.getPassword());
         UserRole userRole = userRoleRepository.findByRoleName(userRequestDTO.getRoleName())

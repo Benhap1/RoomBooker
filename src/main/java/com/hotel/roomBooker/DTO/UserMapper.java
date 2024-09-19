@@ -10,5 +10,6 @@ public interface UserMapper {
     User toEntity(UserRequestDTO userRequestDTO);
 
     @Mapping(source = "user.userRole.roleName", target = "roleName")
+    @Mapping(source = "user.userName", target = "username")
     UserResponseDTO toDTO(User user);
 }
