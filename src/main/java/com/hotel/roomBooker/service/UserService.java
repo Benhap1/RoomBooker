@@ -10,6 +10,7 @@ import com.hotel.roomBooker.model.UserRole;
 import com.hotel.roomBooker.repository.UserRepository;
 import com.hotel.roomBooker.repository.UserRoleRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,7 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final UserMapper userMapper;
-
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDTO getUserByUserName(String userName) {
         User user = userRepository.findByUserName(userName)
@@ -35,6 +36,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Role with name " + userRequestDTO.getRoleName() + " not found"));
         User user = userMapper.toEntity(userRequestDTO);
         user.setUserRole(userRole);
+        user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
         User savedUser = userRepository.save(user);
         return userMapper.toDTO(savedUser);
     }
@@ -44,7 +46,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
         existingUser.setUserName(userRequestDTO.getUserName());
         existingUser.setEmail(userRequestDTO.getEmail());
-        existingUser.setPassword(userRequestDTO.getPassword());
+        existingUser.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
         UserRole userRole = userRoleRepository.findByRoleName(userRequestDTO.getRoleName())
                 .orElseThrow(() -> new ResourceNotFoundException("Role with name " + userRequestDTO.getRoleName() + " not found"));
         existingUser.setUserRole(userRole);
