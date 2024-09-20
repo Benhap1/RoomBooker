@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class RoomRequestDTO {
     private String name;
     private String description;
-    private int number;
+    private String number;
     private long price;
     private int maxPeople;
     private LocalDate availableFrom;

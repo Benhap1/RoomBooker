@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
+import java.util.List;
 
 
 @Entity
@@ -19,7 +20,7 @@ public class Room {
 
     private String name;
     private String description;
-    private int number;
+    private String number;
     private long price;
     private int maxPeople;
     private LocalDate availableFrom;
@@ -27,4 +28,10 @@ public class Room {
 
     @ManyToOne
     private Hotel hotel;
+
+    @ManyToMany(mappedBy = "rooms")
+    private List<Booking> bookings;
+
+    @ManyToMany(mappedBy = "rooms")
+    private List<UnavailableDate> unavailableDates;
 }

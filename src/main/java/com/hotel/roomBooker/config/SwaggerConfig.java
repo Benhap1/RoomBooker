@@ -15,7 +15,7 @@ public class SwaggerConfig {
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
                 .group("public")
-                .pathsToMatch("/hotels/**", "/rooms/**","/users/**")
+                .pathsToMatch("/hotels/**", "/rooms/**","/users/**", "/booking/**")
                 .build();
     }
     @Bean
