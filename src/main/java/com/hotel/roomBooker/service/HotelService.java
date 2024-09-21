@@ -1,9 +1,6 @@
 package com.hotel.roomBooker.service;
 
-import com.hotel.roomBooker.DTO.HotelMapper;
-import com.hotel.roomBooker.DTO.HotelRequestDTO;
-import com.hotel.roomBooker.DTO.HotelResponseDTO;
-import com.hotel.roomBooker.DTO.PaginatedHotelResponseDTO;
+import com.hotel.roomBooker.DTO.*;
 import com.hotel.roomBooker.exception.InvalidInputException;
 import com.hotel.roomBooker.exception.ResourceNotFoundException;
 import com.hotel.roomBooker.model.Hotel;
@@ -11,7 +8,9 @@ import com.hotel.roomBooker.repository.HotelRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,5 +105,19 @@ public class HotelService {
         hotel.setRating(newAverageRating);
         Hotel updatedHotel = hotelRepository.save(hotel);
         return hotelMapper.toDTO(updatedHotel);
+    }
+
+    public PaginatedHotelResponseDTO getFilteredHotels(HotelFilterDTO filter, Pageable pageable) {
+        Specification<Hotel> specification = HotelSpecification.createSpecification(filter);
+        Page<Hotel> hotelsPage = hotelRepository.findAll(specification, pageable);
+        List<HotelResponseDTO> hotelDTOs = new ArrayList<>();
+        for (Hotel hotel : hotelsPage.getContent()) {
+            HotelResponseDTO hotelDTO = hotelMapper.toDTO(hotel);
+            hotelDTOs.add(hotelDTO);
+        }
+        PaginatedHotelResponseDTO response = new PaginatedHotelResponseDTO();
+        response.setHotels(hotelDTOs);
+        response.setTotalRecords((int) hotelsPage.getTotalElements());
+        return response;
     }
 }
