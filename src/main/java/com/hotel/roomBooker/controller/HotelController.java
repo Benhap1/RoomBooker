@@ -57,4 +57,11 @@ public class HotelController {
         hotelService.deleteHotel(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/rating")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
+    public ResponseEntity<HotelResponseDTO> updateHotelRating(@PathVariable Long id, @RequestParam int newMark) {
+        HotelResponseDTO updatedHotel = hotelService.updateRating(id, newMark);
+        return ResponseEntity.ok(updatedHotel);
+    }
 }

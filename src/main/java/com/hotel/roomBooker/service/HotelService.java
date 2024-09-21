@@ -79,4 +79,32 @@ public class HotelService {
         }
         hotelRepository.deleteById(id);
     }
+
+
+    public HotelResponseDTO updateRating(Long id, int newMark) {
+        if (newMark < 1 || newMark > 5) {
+            throw new InvalidInputException("Rating must be between 1 and 5");
+        }
+
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + id + " not found"));
+
+        double currentRating = hotel.getRating();
+        int numberOfRatings = hotel.getNumberOfRatings();
+        double totalRating;
+        if (numberOfRatings == 0) {
+            totalRating = newMark;
+            numberOfRatings = 1;
+        } else {
+            totalRating = currentRating * numberOfRatings;
+            totalRating = totalRating - currentRating + newMark;
+            numberOfRatings += 1;
+        }
+        double newAverageRating = Math.round((totalRating / numberOfRatings) * 10.0) / 10.0;
+        hotel.setTotalRating(totalRating);
+        hotel.setNumberOfRatings(numberOfRatings);
+        hotel.setRating(newAverageRating);
+        Hotel updatedHotel = hotelRepository.save(hotel);
+        return hotelMapper.toDTO(updatedHotel);
+    }
 }

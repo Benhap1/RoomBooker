@@ -37,6 +37,9 @@ public class BookingService {
         User user = userRepository.findByUserName(bookingRequestDTO.getUserName())
                 .orElseThrow(() -> new ResourceNotFoundException("User with username " + bookingRequestDTO.getUserName() + " not found"));
         List<Room> rooms = roomRepository.findAllById(bookingRequestDTO.getRoomIds());
+        if (rooms.isEmpty() || rooms.size() != bookingRequestDTO.getRoomIds().size()) {
+            throw new ResourceNotFoundException("No rooms found for the provided IDs: " + bookingRequestDTO.getRoomIds());
+        }
         checkRoomsAvailability(rooms, bookingRequestDTO.getCheckInDate(), bookingRequestDTO.getCheckOutDate());
         Booking booking = new Booking();
         booking.setCheckInDate(bookingRequestDTO.getCheckInDate());

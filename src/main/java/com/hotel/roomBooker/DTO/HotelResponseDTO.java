@@ -10,6 +10,7 @@ public class HotelResponseDTO {
     private String city;
     private String address;
     private double distanceFromCityCenter;
-    private int rating;
+    private double rating;
     private int numberOfRatings;
+    private double totalRating;
 }

@@ -32,7 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
 
         List<GrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + userRole.getRoleName().toUpperCase())
+                new SimpleGrantedAuthority(userRole.getRoleName().toUpperCase())
         );
 
         return new CustomUserDetails(user.getUserName(), user.getPassword(), authorities);

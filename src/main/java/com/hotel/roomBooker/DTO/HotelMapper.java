@@ -13,6 +13,7 @@ public interface HotelMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "rating", ignore = true)
     @Mapping(target = "numberOfRatings", ignore = true)
+    @Mapping(target = "totalRating", ignore = true)
     Hotel toEntity(HotelRequestDTO dto);
     HotelResponseDTO toDTO(Hotel hotel);
 }

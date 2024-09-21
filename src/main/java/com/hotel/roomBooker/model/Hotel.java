@@ -18,8 +18,9 @@ public class Hotel {
     private String city;
     private String address;
     private double distanceFromCityCenter;
-    private int rating;
+    private double rating;
     private int numberOfRatings;
+    private double totalRating;
 
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms;

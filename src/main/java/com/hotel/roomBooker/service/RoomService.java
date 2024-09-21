@@ -22,7 +22,7 @@ public class RoomService {
 
     public RoomResponseDTO getRoomById (Long id) {
         Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Hotel with id " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " not found"));
         return roomMapper.toDTO(room);
     }
     @Transactional
@@ -38,7 +38,7 @@ public class RoomService {
     @Transactional
     public RoomResponseDTO updateRoom(Long id, RoomRequestDTO roomRequestDTO) {
         Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Room with id " + id + " not found"));
 
         room.setName(roomRequestDTO.getName());
         room.setDescription(roomRequestDTO.getDescription());
@@ -56,8 +56,10 @@ public class RoomService {
         return roomMapper.toDTO(updatedRoom);
     }
 
-    public void deleteRoom(Long id) {
-        roomRepository.deleteById(id);
+    public void deleteRoom(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room with ID " + roomId + " not found"));
+        roomRepository.delete(room);
     }
 }
 
