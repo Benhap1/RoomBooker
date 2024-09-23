@@ -30,6 +30,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/hotels/{id}/rating").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/hotels/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/hotels/filter").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/rooms/filter").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/rooms/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/rooms/**").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/rooms/**").hasAuthority("ADMIN")

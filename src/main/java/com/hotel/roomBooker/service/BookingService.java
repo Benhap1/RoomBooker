@@ -16,10 +16,10 @@ import com.hotel.roomBooker.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -56,6 +56,7 @@ public class BookingService {
 
     private void checkRoomsAvailability(List<Room> rooms, LocalDate checkInDate, LocalDate checkOutDate) {
         List<LocalDate> unavailableDates = new ArrayList<>();
+
         for (Room room : rooms) {
             List<UnavailableDate> roomUnavailableDates = unavailableDateRepository.findByRoomsContaining(room);
             for (UnavailableDate unavailableDate : roomUnavailableDates) {
@@ -67,11 +68,9 @@ public class BookingService {
         }
 
         if (!unavailableDates.isEmpty()) {
-            String message = createAvailabilityMessage(rooms.size(), checkInDate, checkOutDate);
-            throw new RoomNotAvailableException(message);
+            throw new RoomNotAvailableException(createAvailabilityMessage(rooms.size(), checkInDate, checkOutDate, unavailableDates));
         }
     }
-
 
     private void addUnavailableDates(List<Room> rooms, LocalDate checkInDate, LocalDate checkOutDate) {
         LocalDate currentDate = checkInDate;
@@ -84,15 +83,14 @@ public class BookingService {
         }
     }
 
-    private String createAvailabilityMessage(int roomCount, LocalDate checkInDate, LocalDate checkOutDate) {
+
+    private String createAvailabilityMessage(int roomCount, LocalDate checkInDate, LocalDate checkOutDate, List<LocalDate> unavailableDates) {
         String roomWord = roomCount == 1 ? "Room" : "Rooms";
-        String dateWord = checkInDate.equals(checkOutDate) ? "date" : "dates";
-        String datePart = checkInDate.equals(checkOutDate) ?
-                "on " + checkInDate :
-                "from " + checkInDate + " to " + checkOutDate;
-        return roomCount == 1 ?
-                String.format("%s is not available on %s", roomWord, datePart) :
-                String.format("%s are not available on %s", roomWord, datePart);
+        String unavailableDatesString = unavailableDates.stream()
+                .map(LocalDate::toString)
+                .collect(Collectors.joining(", "));
+
+        return String.format("%s %s not available on the following dates: %s", roomWord, roomCount == 1 ? "is" : "are", unavailableDatesString);
     }
 
     @Transactional
