@@ -59,15 +59,20 @@ The API documentation is available via Swagger UI. You can access it at:
     spring.data.mongodb.uri=mongodb://localhost:27017/statistics_db
 
 4. Kafka configuration:
-    
 
-    Command to start Zookeeper:
-    zookeeper-server-start.bat /path/to/kafka/config/zookeeper.properties
-    Command to start Kafka broker:
-    kafka-server-start.bat /path/to/kafka/config/server.properties
-    Start consuming Messages from the Topics:
-    kafka-console-consumer.sh --topic user-registration --bootstrap-server localhost:9092 --from-beginning --group statistic-group
-    kafka-console-consumer.sh --topic room-booking --bootstrap-server localhost:9092 --from-beginning --group statistic-group
+#### Command to start Zookeeper:
+    
+zookeeper-server-start.bat /path/to/kafka/config/zookeeper.properties
+    
+#### Command to start Kafka broker:
+    
+kafka-server-start.bat /path/to/kafka/config/server.properties
+    
+#### Start consuming Messages from the Topics:
+    
+kafka-console-consumer.sh --topic user-registration --bootstrap-server localhost:9092 --from-beginning --group statistic-group
+    
+kafka-console-consumer.sh --topic room-booking --bootstrap-server localhost:9092 --from-beginning --group statistic-group
 
 
 
