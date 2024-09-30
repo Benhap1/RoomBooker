@@ -9,5 +9,4 @@ class RoomBookerApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
