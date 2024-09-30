@@ -19,6 +19,7 @@ public class BookingController {
     public final BookingService bookingService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     public ResponseEntity<BookingResponseDTO> createBooking(@RequestBody BookingRequestDTO bookingRequestDTO) {
         BookingResponseDTO bookingResponseDTO = bookingService.createBooking(bookingRequestDTO);
         return new ResponseEntity<>(bookingResponseDTO, HttpStatus.CREATED);

@@ -1,23 +1,29 @@
 package com.hotel.roomBooker.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hotel.roomBooker.DTO.BookingMapper;
 import com.hotel.roomBooker.DTO.BookingRequestDTO;
 import com.hotel.roomBooker.DTO.BookingResponseDTO;
 import com.hotel.roomBooker.exception.ResourceNotFoundException;
+import com.hotel.roomBooker.exception.RoomBookingException;
 import com.hotel.roomBooker.exception.RoomNotAvailableException;
-import com.hotel.roomBooker.model.Booking;
-import com.hotel.roomBooker.model.Room;
-import com.hotel.roomBooker.model.UnavailableDate;
-import com.hotel.roomBooker.model.User;
+import com.hotel.roomBooker.model.*;
 import com.hotel.roomBooker.repository.BookingRepository;
 import com.hotel.roomBooker.repository.RoomRepository;
 import com.hotel.roomBooker.repository.UnavailableDateRepository;
 import com.hotel.roomBooker.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,28 +37,64 @@ public class BookingService {
     private final UnavailableDateRepository unavailableDateRepository;
     private final BookingMapper bookingMapper;
 
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
 
     @Transactional
     public BookingResponseDTO createBooking(BookingRequestDTO bookingRequestDTO) {
         User user = userRepository.findByUserName(bookingRequestDTO.getUserName())
                 .orElseThrow(() -> new ResourceNotFoundException("User with username " + bookingRequestDTO.getUserName() + " not found"));
+
         List<Room> rooms = roomRepository.findAllById(bookingRequestDTO.getRoomIds());
         if (rooms.isEmpty() || rooms.size() != bookingRequestDTO.getRoomIds().size()) {
             throw new ResourceNotFoundException("No rooms found for the provided IDs: " + bookingRequestDTO.getRoomIds());
         }
+
         checkRoomsAvailability(rooms, bookingRequestDTO.getCheckInDate(), bookingRequestDTO.getCheckOutDate());
+
         Booking booking = new Booking();
         booking.setCheckInDate(bookingRequestDTO.getCheckInDate());
         booking.setCheckOutDate(bookingRequestDTO.getCheckOutDate());
         booking.setRooms(rooms);
         booking.setUsers(List.of(user));
+
         Booking savedBooking = bookingRepository.save(booking);
+
         user.setBooking(savedBooking);
         userRepository.save(user);
+
         addUnavailableDates(rooms, bookingRequestDTO.getCheckInDate(), bookingRequestDTO.getCheckOutDate());
+
+        RoomBookingEvent event = new RoomBookingEvent(
+                user.getId(),
+                convertToDate(booking.getCheckInDate()),
+                convertToDate(booking.getCheckOutDate())
+        );
+
+        sendEvent("room-booking", event);
+
         return bookingMapper.toResponseDTO(savedBooking);
     }
 
+    private Date convertToDate(LocalDate localDate) {
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+
+    private void sendEvent(String topic, RoomBookingEvent event) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JavaTimeModule());
+            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+            String jsonString = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(topic, jsonString);
+        } catch (JsonProcessingException e) {
+            throw new RoomBookingException("Failed to serialize RoomBookingEvent for Kafka", e);
+        } catch (Exception e) {
+            throw new RoomBookingException("Failed to send RoomBookingEvent to Kafka due to an unexpected error.", e);
+        }
+    }
 
     private void checkRoomsAvailability(List<Room> rooms, LocalDate checkInDate, LocalDate checkOutDate) {
         List<LocalDate> unavailableDates = new ArrayList<>();

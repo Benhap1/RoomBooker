@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class RoomService {
     }
 
     @Transactional
-    public RoomResponseDTO createRoom (RoomRequestDTO roomRequestDTO) {
+    public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) {
         Hotel hotel = hotelRepository.findById(roomRequestDTO.getHotelId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel not found"));
         Room room = roomMapper.toEntity(roomRequestDTO);
